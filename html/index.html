@@ -1,0 +1,889 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+
+
+<title>何飞龙 计算机视觉 Proj3</title>
+
+
+<link href='http://fonts.googleapis.com/css?family=Nunito:300|Crimson+Text|Droid+Sans+Mono' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" title="Default" href="styles/github.css">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>  
+
+<link rel="stylesheet" href="highlighting/styles/default.css">
+<script src="highlighting/highlight.pack.js"></script>
+
+<style type="text/css">
+body {
+	margin: 0px;
+	width: 100%;
+	font-family: 'Crimson Text', serif;
+	font-size: 20px;
+	background: #fcfcfc;
+
+}
+h1 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 28px;
+	margin: 25px 0px 0px 0px;
+	text-transform: lowercase;
+    
+}
+
+h2 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 30px;
+	margin: 15px 0px 35px 0px;
+	color: #333;	
+	word-spacing: 3px;
+}
+
+h3 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 26px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+h4 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 22px;
+	margin: 10px 0px 10px 0px;
+	color: #333;
+	word-spacing: 2px;
+}
+
+h5 {
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	font-size: 18px;
+	margin: 10px 0px 10px 0px;
+	color: #111;
+	word-spacing: 2px;
+}
+
+p, li {
+	color: #444;
+
+}
+
+a {
+	color: #DE3737;
+}
+
+.container {
+	margin: 0px auto 0px auto;
+	width: 960px;
+}
+
+#header {
+	/*background: #333;*/
+	background:rgb(150, 180,255);
+	width: 100%;
+}
+
+#headersub {
+	/*color: #ccc;*/
+	color:black;
+	width: 66%;
+	margin: 0px auto 0px auto;
+	padding: 20px 0px 20px 0px;
+}
+
+.chart {
+	width: 480px;
+}
+.lol {
+	font-size: 16px;
+	color: #888;
+	font-style: italic;
+}
+.sep {
+	height: 1px;
+	width: 100%;
+	background: #999;
+	margin: 20px 0px 20px 0px;
+}
+.footer{
+	font-size: 16px;
+}
+.latex {
+	width: 100%;
+}
+
+.latex img {
+	display: block;
+	margin: 0px auto 0px auto;
+}
+
+pre {
+	font-family: 'Droid Sans Mono';
+	font-size: 18px;
+	width:100%;
+    height: 200px;
+    background:rgb(150, 155, 250);
+    overflow: scroll
+}
+
+td img {
+  vertical-align: middle;
+}
+
+#contents a {
+}
+
+#mydivcss{
+margin:0 auto;border:0px solid #000;width:66%;height:100px} 
+
+
+</style>
+<script type="text/javascript">
+    hljs.initHighlightingOnLoad();
+</script>
+</head>
+<body>
+<div id="header" >
+<div id="headersub"> 
+<h2>何飞龙 (14212191) &nbsp &nbsp &nbsp <strong>中山大学 计算机视觉 /Project 3/ 场景识别 </strong></h2>
+
+</div>
+</div>
+
+<div id="mydivcss">
+
+
+
+<p> 	
+   <strong>
+   <h4>概要：</h4>
+   一、算法与代码<BR>
+   &nbsp &nbsp 1. 小图像特征  <BR>
+   &nbsp &nbsp 2. 建立视觉词汇和图像视觉词汇包 <BR>
+   &nbsp &nbsp 3. K近邻分类器 K-NN Classfier <BR>
+   &nbsp &nbsp 4. 线性支持向量机 Linear SVM <BR>
+   二、实验<BR>
+   &nbsp &nbsp 1. 小图像+K-NN & 视觉词汇包+K-NN<BR>
+   &nbsp &nbsp 2. 视觉词汇包+Linear SVM <BR>
+   三、改进（增加Gist特征）<BR>
+   四、总结
+   </strong> 
+</p>
+
+<ol>
+
+</ol>
+
+<p> 	
+
+</p>
+
+<div style="clear:both">
+<h2 style="background-color:rgb(10,200,150)"><strong>一、算法与代码  <BR></strong></h2>
+
+<h3 style="background-color:rgb(10,200,150)"><strong>1. 小图像特征   <BR></strong></h3>
+
+<p> 	
+&nbsp &nbsp &nbsp &nbsp 小图像特征是直接用将图像resize后的小图像来直接作为图像的特征描述。<BR>
+
+	
+&nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>将图像（train图像或者test图像）resize为16*16，得到一个128维的数据，这个128维数据就作为对该图像的特征描述。按照doc文件的建议，将这128维的特征描述做零平均，也就是将每个数据减去这128个数据的均值。然后，每个数据除以这个128维数据的长度（128维空间下），从而将这个128维的特征描述长度normalize为1。这样做，可能使得对不同光照等场合下，更具鲁棒性。<BR>
+
+&nbsp &nbsp &nbsp &nbsp 尝试了对图像进行高斯滤波，来消除噪声的影响，但对分类结果的影响不是太大。甚至当高斯滤波核的simga较大时，分类正确率会下降。原因可能是，本来小图像已经将一些高频的信息丢失，再进行高斯滤波将会丢失更多的高频信息。本来小图像的方法在场景识别中性能比较差，消除噪声也就没有太大的意义。
+</p>
+
+<pre><code>
+function image_feats = get_tiny_images(image_paths)
+  number_of_images=size(image_paths,1);
+  image_feats=zeros(number_of_images,16*16);
+  
+  for i=1:number_of_images
+      image=imread(image_paths{i});
+      
+%       高斯滤波基本上没有效果
+%       image0=imread(image_paths{i});
+%       gau=fspecial('Gaussian',16,8);
+%       image=imfilter(image0,gau);
+
+      tiny_image=imresize(image,[16,16]);  % image resize为16*16
+      for j=1:16
+          for k=1:16
+            image_feats(i,(j-1)*16+k)=tiny_image(j,k);  % 将16*16的图像作为特征描述（128维）
+          end
+      end
+      image_feats(i,:)=image_feats(i,:)-mean(image_feats(i,:)); % 每个图像的值减去其平均值，从而实现特征描述的0均值
+      image_feats(i,:)=image_feats(i,:)./norm(image_feats(i,:));  % 将特征描述（128维空间的）长度归一化
+  end
+end
+</code></pre>
+
+<h3 style="background-color:rgb(10,200,150)"><strong>2. 建立视觉词汇和图像视觉词汇包</strong></h3>
+<h4 style="background-color:rgb(10,200,150)"><strong>2.1 建立视觉词汇</strong></h4>
+<p>
+&nbsp &nbsp &nbsp &nbsp 从抽样图像中抽取SIFT特征描述，然后用K-means方法对这些特征聚类，这些聚类中心就是视觉词汇。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>从图像提取（proj3.m代码表明是从train图像提取）一定数目的SIFT特征描述，然后用K-means算法将这些描述子聚类，用一定数目的视觉词汇代表这些聚类的中心（128维特征描述空间下的点）。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>代码：</strong>vl_dsift()提取特征的SIFT描述，得到features为128*number_of_features的矩阵（number_of_features为单幅图像得到的features个数），用vl_kmeans()聚类，返回center矩阵（128*vocab_size）。最后，center矩阵的转置矩阵vocab（vocab_size*128）作为输出。
+
+</p>
+
+<pre><code>
+function vocab = build_vocabulary( image_paths, vocab_size )
+ %    需要调整的参数： number_of_SIFT_feats，Steps
+ %    调整参数后，要将vocab.mat删除，重新生成
+
+ number_of_images=size(image_paths,1);   % 用于建立视觉词汇的抽取图像数目，proj3.m说明这些图像是train图像集
+ number_of_SIFT_feats=200;                % 每幅图像抽取的特征数目
+
+ % 将从抽样图像中获取的一定数目的特征描述放在all_SIFT_feats矩阵中，用于K-means
+ all_SIFT_feats=zeros(128,number_of_images*number_of_SIFT_feats);  
+
+ for i=1:number_of_images
+    image=im2single(imread(image_paths{i}));  % 由于vl_dsift()函数的限制，输入的图像要转换为single类型
+    [~, SIFT_feats] = vl_dsift(image,'Fast', 'Step', 10);  % SIFT_feats为128*特征数目的矩阵
+    for j=1:number_of_SIFT_feats              % 只保留number_of_SIFT_feats数目的特征
+      all_SIFT_feats(:,(i-1)*number_of_SIFT_feats+j)=SIFT_feats(:,j);  % 将一定数目的特征描述放在all_SIFT_feats矩阵中
+    end
+ end
+ [center,~]=vl_kmeans(all_SIFT_feats,vocab_size);  % centers:128*vocab_size
+ % 输出矩阵size vocab_size*128，每一行表示K-means的一个聚类中心，也就是128维空间的一个点
+ vocab=center'; 
+end
+
+</code></pre>
+
+
+<h4 style="background-color:rgb(10,200,150)"><strong>2.2 图像视觉词汇包</strong></h4>
+
+<p>
+&nbsp &nbsp &nbsp &nbsp 图像视觉词汇包的获取是基于图像的SIFT特征描述来对所有视觉词汇统计，也就是对视觉词汇建立直方图。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>从图像集（train图像集或者test图像集）抽取特征，对每幅图像的128维的SIFT特征描述，计算与视觉词汇（也就是K-means聚类中心）的欧式距离。对一个SIFT特征描述，假如与视觉词汇Word1欧氏距离最近，则Word1出现的出现次数加1。可以根据所有的SIFT特征描述来对所有视觉词汇的出现次数统计，得到视觉词汇的直方图。视觉词汇有vocab_size个，对每幅图像的特征描述，size为1*vocab_size。由于在这里，对每幅图像抽取的特征数目没有限制，不同图像的特征数目有很大的不同，所以为了适应不同尺度的图像，还要将直方图归一化。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>代码：</strong>按照建立视觉词汇的方法，用vl_dsift()函数从图像中抽取特征，按照给出的建议，在这里step要小些，也就是更密集地抽取特征。然后用vl_alldist2()计算抽取到的特征（128维）与视觉词汇（128维空间下的聚类中心点）距离，得到dist矩阵，sort这个dist矩阵。可以得到每个特征距离最近的视觉词汇的索引，用1*vocab_size的矩阵表示一个图像的直方图，则在该索引位置累加1。之后对直方图归一化，也就是每个直方图数据除以直方图数据的总和。输出为image_feats矩阵，每一行作为图像的直方图表示，所以矩阵image_feats的size为number_of_images*vocab_size。
+</p>
+
+<pre><code>
+function image_feats = get_bags_of_sifts(image_paths)
+ %     需要调整的参数：Step
+
+ load('vocab.mat')                                % proj3.m 中有保存vocab的代码
+ vocab_size = size(vocab, 1);                     % vocab每一行表示K-means得到的一个中心，不是vocab_size=size(vocab,2)
+
+ number_of_images=size(image_paths,1);            % 图像的数目
+ image_feats=zeros(number_of_images,vocab_size);  % 输出的SIFT特征描述包为number_of_image*vocal_size维度 
+
+ display('runing for geting bags of sifts');
+ for i=1:number_of_images
+    image=im2single(imread(image_paths{i}));         % 由于vl_dsift限制，需要转换为single类型
+    [~, SIFT_feats] = vl_dsift(image, 'Step', 1);   % SIFT_features is a 128 x N matrix of SIFT features
+    
+    SIFT_feats=single(SIFT_feats);    % 由于vl_alldist2()限制，需要转换为single类型
+    vocab=single(vocab);              % 由于vl_alldist2()限制，需要转换为single类型
+    dist=vl_alldist2(vocab',SIFT_feats);
+ 
+    [~,index]=sort(dist,1); % 欧式距离最近的视觉词汇，可以被认为在图像中出现
+    number_of_SIFT_feats=size(SIFT_feats,2);  % vl_dsift的输出SIFT_feats为128*SIFT数目
+    for j=1:number_of_SIFT_feats
+        image_feats(i,index(1,j))=image_feats(i,index(1,j))+1;   % 统计直方图，也就是所有视觉词汇在图像中出现的次数
+    end
+    image_feats(i,index(1,j))=image_feats(i,index(1,j))./sum(image_feats(i,:));  % 直方图归一化
+ end
+end
+
+</code></pre>
+
+
+
+<h3 style="background-color:rgb(10,200,150)"><strong>3. K近邻分类器 K-NN Classfier</strong></h3>
+
+
+<p>
+&nbsp &nbsp &nbsp &nbsp &nbsp K-NN Classfier(K-Nearest Neighbor Classfier)的基本思想是在任意维度的空间，计算一个点A与其他点的欧氏距离，对距离最近的K个neighbor考察，如果这些neighbor中有最多个属于某个类别，则也将点A归于该类别。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>对所有的train图像和所有test图像，计算它们在特征描述空间（小图像特征描述是16*16维，SIFT特征包是vocab_size维）的欧式距离，用dist矩阵表示，对某个test图像I，将与train图像的距离排序，取出前K个，对这K个train图像进行考察，看分别属于哪个类别，来判断图像I的分类。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>代码：</strong>train_image_feats和test_image_feats分别是train图像和test图像的特征描述。用vl_alldist2()计算这两个特征集合的欧式距离。在特征描述空间，对每个test图像，将其与其他train图像的距离排序，对距离最近的K个train图像考察，看分别属于哪个类。由于输入的train_label与train_image_feats的每行数据对应的是同一幅train图像，这样很容易知道某个train_image_feats所描述的train图像属于哪个类。如果这K个图像有最多个属于类别 ‘forest’，则认为所考察的这个test图像也属于类别 'forest'。
+</p>
+<pre><code>
+function predicted_categories = nearest_neighbor_classify(train_image_feats, train_labels, test_image_feats)
+  %     需要调整的参数：K
+
+  K=30;    % K-NN算法中要考察的neighbors个数
+  test_image_number=size(test_image_feats,1);  % test图像的特征描述的数目，与test图像的数目相同
+  
+  categories=unique(train_labels);  % 所有train图像的类别，由于train_label是对所有的train图像的描述，要找到没有重复的所有类别
+  number_of_categories=size(categories,1);  % 类别的数目
+  predicted_categories=cell(test_image_number,1);   % 对test图像的分类结果，作为输出
+  
+  % 所有训练图像与测试图像所提取的特征的欧式距离，
+  % dist矩阵某一行表示某个train图像的features与所有的test图像的features欧式距离
+  dist=vl_alldist2(train_image_feats',test_image_feats');   % vl_alldist2按列处理，要转置  
+  
+  [~,index]=sort(dist,1);                % 将dist矩阵对每列按照升序排列，index为test图像的索引
+  K_labels=cell(test_image_number,K);    % 用于标记对每个测试图像，与其“距离”最近的K个train图像的label（按行表示）
+  categories_statistic=zeros(test_image_number,number_of_categories);    % 用于统计这K个train图像所属的分类（按行表示）
+  
+   for i=1:test_image_number
+     for j=1:K
+      %top_K_labels(i,j)=labels(strcmp(labels, train_labels(index(j,i))));
+      K_labels(i,j)=train_labels(index(j,i));    % 得到第i个test图像，距离最近的K个图像的label
+     end
+     for j=1:number_of_categories
+       categories_statistic(i,j) = sum(strcmp(categories(j), K_labels(i,:)));  % 统计对每个类别，K个图像中有多少个属于该类别
+     end
+   end
+   [~,index_sort]=sort(categories_statistic,2,'descend');  % 将对类别的统计结果每行按照降序排列
+  
+   % 对每个test图像，特征描述空间与其最近的K个图像最多属于某个类别，则认为该test图像也属于该类别
+   for i=1:test_image_number
+    predicted_categories(i,1)=categories(index_sort(i,1));  
+   end
+end
+
+</code></pre>
+
+
+
+
+
+
+<h3 style="background-color:rgb(10,200,150)"><strong>4. 线性支持向量机 Linear SVM</strong></h3>
+
+<p>
+&nbsp &nbsp &nbsp &nbsp 参考课件，SVM是寻找一个线性函数，来将空间里的两类数据点分类。<BR>
+
+&nbsp &nbsp &nbsp &nbsp f(X)=sgn(W*X+b) <BR>
+
+&nbsp &nbsp &nbsp &nbsp X可以认为是空间中的一个点（列向量），W为行向量，b为标量，W*X+b>0表示一个类，W*X+b<0表示另一个类（sgn函数下用+1,-1表示两个类）。在这里，是在特征描述的空间分类（小图像特征描述空间是16*16维，SIFT特征包描述空间是vocab_size维）。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>对任意一个类别Cata，将所有的train图像的特征描述按照属于和不属于该类别Cata来划分（1-vs-all）。特征描述属于Cata标记为+1,不属于则标记为-1。然后以train图像的特征描述作为输入(向量X)，用SVM求解得到W,b。可以得到与类别数目相同个数的W,b。用这些W,b来求解test图像特征描述的Y,Y=W*X+b。如果test图像属于某个类别，则得到的Y是最大的。从而预测出test图像所属的类别。<BR>
+
+&nbsp &nbsp &nbsp &nbsp <strong>代码：</strong>矩阵Y（Y=sgn(W*X+b)）,是用+1,-1标记空间中的点X(也就是train_image_feats')属于和不属于某个类别（1-vs-all）,以X,Y作为vl_svmtrain()函数的输入，求解得到一个线性函数的参数W,b。对每个类别都进行同样的操作，得到各自的W,b。假如对类别 'forest'得到的(W,b)，用test_image_feats'作为X,求解线性函数Y_TEST=W*X+b，Y_TEST越大，则认为有越大的confidence属于类别 'forest'。
+
+</p>
+<pre><code>
+function predicted_categories = svm_classify(train_image_feats, train_labels, test_image_feats)
+  %     需要调整的参数：LAMBDA
+  LAMBDA=0.0001;
+  
+  test_image_number=size(test_image_feats,1);   % test图像特征描述的数目，也等于test图像的数目
+  % train_image_number=size(train_image_feats,1);  % train图像的数目
+  
+  categories=unique(train_labels);   % 每个train图像所属的类别
+  number_of_categories=size(categories,1);  % 类别的数目
+ 
+  % 用于存放vl_svmtrain的输出参数W，行数与一个特征描述的维度相同，列数与类别数目相同
+  vl_W=zeros(size(train_image_feats,2),number_of_categories);  
+  
+  % 用于存放vl_svmtrain的输出参数b，第一列的某一行是vl_svmtrain的一次输出，行数和类别的数目相同，列数与test图像的数目相同
+  % 第二列之后（包括第二列）为第一列的重复
+  B=zeros(number_of_categories,test_image_number);  
+  
+  for i=1:number_of_categories
+     Y=ones(size(train_labels,1),1).*(-1);   % 1-vs-all，对某个类别，属于该类别的与train_image_feats'索引位置相对应的
+     Y(strcmp(train_labels,categories(i)))=1;  % 类别为categories(i)的标记为1，其余位置仍为-1
+     
+     % svm求解+1、-1区分的train_image_feats，用Y=sign(W*X+b)对这两个类划分,得到W,b
+     [vl_W(:,i),b] = vl_svmtrain(train_image_feats', Y, LAMBDA);   
+     B(i,1)=b;
+  end
+  W=vl_W';  % vl_W的行数与一个特征描述的维度相同，列数为类别的数目，W与之相反
+  for i=2:test_image_number
+     B(:,i)=B(:,1);
+  end
+  
+  % 矩阵Y_TEST描述各个类别下（1-vs-all）的W、B参数对每个test图像的结果
+  Y_TEST=zeros(number_of_categories,test_image_number);
+  for i=1:test_image_number
+      Y_TEST=W*test_image_feats'+B;
+  end
+  
+  % 将Y_TEST排序，看哪个类别下（1-vs-all）的参数得到的值最大
+  % 最大的值所在的类别作为test的预测类别
+  [~,index]=sort(Y_TEST,1,'descend');
+  predicted_categories=cell(test_image_number,1);
+  for i=1:test_image_number
+    predicted_categories(i,1)=categories(index(1,i),1);
+  end
+end
+
+</code></pre>
+
+
+<h2 style="background-color:rgb(10,200,150)"><strong>二、实验</strong></h2>
+<h3 style="background-color:rgb(10,200,150)"><strong>  1. 小图像+K-NN & 视觉词汇包+K-NN</strong></h3>
+
+<p>
+  对这两种场景识别方法，只分别给出特定参数下得到的较好的实验结果。
+</p>
+
+
+
+<center><strong style=background-color:rgb(10,200,250)>点击图片，查看详细的实验结果</strong></center>
+
+
+<center>
+<table border=0>
+<tr>
+
+<td>
+
+<center>
+ <strong> 小图像 + KNN </strong>
+</center>
+<a href="./results_webpage exp 00 tiny KNN/index.html"><img src="./results_webpage exp 00 tiny KNN/confusion_matrix.png" width="80%"></a>
+
+<center>
+ <strong>Exp. 01. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.219 <br>
+</center>
+</td>
+
+<td>
+
+<center>
+ <strong> 视觉词汇包 + KNN </strong>
+</center>
+
+<a href="./results_webpage exp 00 bag of SIFT  KNN/index.html"><img src="results_webpage exp 00 bag of SIFT  KNN/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 02. </strong>Accuracy (mean of diagonal of confusion matrix) is 0.477
+</center>
+</td>
+
+</tr>
+
+</table>
+</center>
+
+
+
+
+
+<h3 style="background-color:rgb(10,200,150)"><strong> 2. 视觉词汇包+Linear SVM</strong></h3>
+<p>
+  下面是对涉及到的几个主要参数调整得到的实验结果。
+</p>
+<p>
+   下面这个表是实验结果的汇总。其中第一行的参数分别表示为：<BR>
+   <strong>1. 词汇表的词汇量；2. 建立词汇表时，从每幅图像中抽取的特征数目；3. 建立词汇表时，vl_dsift()的参数'step'；4. 获取图像词汇包时，vl_dsift()的参数'step'；5. SVM中vl_svmtrain()的参数lambda；6. 建立词汇表时，vl_dsift()的参数'Size'；7. 获取图像词汇包时，vl_dsift()的参数'Size'.</strong>
+</p>
+
+
+<center><img src="stat.jpg" > </center>
+
+
+
+<p>
+  下面是实验结果的混淆矩阵，编号对应于上面表的实验编号。
+</p>
+
+
+
+
+
+<center><strong style=background-color:rgb(10,200,250)>点击图片，查看详细的实验结果</strong></center>
+
+
+<center>
+<table border=0>
+<tr>
+
+<td>
+
+
+<a href="./results_webpage exp 01/index.html"><img src="results_webpage exp 01/confusion_matrix.png" width="80%"></a>
+
+<center>
+ <strong>Exp. 01. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.483
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 02/index.html"><img src="results_webpage exp 02/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 02. </strong>Accuracy (mean of diagonal of confusion matrix) is 0.593
+</center>
+</td>
+
+
+</tr>
+
+<tr>
+
+<td>
+
+<a href="./results_webpage exp 03/index.html"><img src="results_webpage exp 03/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 03. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.558
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 04/index.html"><img src="results_webpage exp 04/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 04. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.561
+</center>
+</td>
+
+</tr>
+
+</tr>
+
+<tr>
+
+<td>
+
+<a href="./results_webpage exp 05/index.html"><img src="results_webpage exp 05/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 05. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.601
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 06/index.html"><img src="results_webpage exp 06/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 06. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.637
+</center>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage exp 07/index.html"><img src="results_webpage exp 07/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 07. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.633 
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 08/index.html"><img src="results_webpage exp 08/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 08. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.635
+</center>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage exp 09/index.html"><img src="results_webpage exp 09/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 09. </strong> Accuracy (mean of diagonal of confusion matrix) is  0.631  
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 10/index.html"><img src="results_webpage exp 10/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 10. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.616 
+</center>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage exp 11/index.html"><img src="results_webpage exp 11/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 11. </strong> Accuracy (mean of diagonal of confusion matrix) is  0.655 
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage exp 12/index.html"><img src="results_webpage exp 12/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. 12. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.665  
+</center>
+</td>
+
+</tr>
+
+
+
+
+
+
+</table>
+</center>
+
+
+
+
+
+
+<h2 style="background-color:rgb(10,200,150)"><strong>三、改进（增加Gist特征）</strong></h2>
+<p>
+  &nbsp &nbsp &nbsp &nbsp 由于视觉词汇包+线性SVM能获得较好的识别结果，故只在这种识别算法的基础上增加Gist特征描述来改进。 SIFT描述的是局部特征，Gist是对图片场景的全局特征进行描述。
+  </p>
+
+<p>
+  &nbsp &nbsp &nbsp &nbsp <strong>算法：</strong>在建立视觉词汇时，每个SIFT特征描述子为128维，将一幅图像的Gist特征描述放在图像的每个SIFT描述子128维数据的后面。之后仍然用K-means算法聚类，只不过聚类的空间由128维增加到了128+512维。为图像建立视觉词汇包时，抽取到的SIFT描述子后面也要连接上Gist特征描述子，这样图像的特征描述和词汇的维度一致。<br>
+
+  &nbsp &nbsp &nbsp &nbsp <strong>代码：</strong>重用了 http://people.csail.mit.edu/torralba/code/spatialenvelope/ 提供的Gist代码。原先的代码需要改动的地方在build_vocabulary.m 和 get_bags_of_sifts.m，要将其中生成的SIFT描述子后面增加了Gist描述子。
+  </p>
+
+<code><pre>
+function vocab = build_vocabulary( image_paths, vocab_size )   %% 增加Gist特征
+%    需要调整的参数： number_of_SIFT_feats，Steps
+%    调整参数后，要将vocab.mat删除，重新生成
+
+number_of_images=size(image_paths,1);   % 用于建立视觉词汇的抽取图像数目，proj3.m说明这些图像是train图像集
+number_of_SIFT_feats=300;                % 每幅图像抽取的特征数目
+
+% Gist 参数
+clear param
+param.imageSize = [256 256]; % it works also with non-square images
+param.orientationsPerScale = [8 8 8 8];
+param.numberBlocks = 4;
+param.fc_prefilt = 4;
+
+
+% 将从抽样图像中获取的一定数目的特征描述放在all_SIFT_feats矩阵中，用于K-means
+all_SIFT_feats=zeros(128+512,number_of_images*number_of_SIFT_feats);  
+
+for i=1:number_of_images
+    image=im2single(imread(image_paths{i}));  % 由于vl_dsift()函数的限制，输入的图像要转换为single类型
+    [~, SIFT_feats] = vl_dsift(image,'Fast', 'Step', 10);  % SIFT_feats为128*特征数目的矩阵
+    
+    [Gist, param] = LMgist(image, '', param);   % 获取Gist特征
+%     for j=1:number_of_SIFT_feats
+%         for k=1:512
+%          SIFT_feats(128+k,j)=Gist(1,k);
+%         end
+%     end
+    Gist=repmat(Gist',1,size(SIFT_feats,2));  % 生成列相同的Gist矩阵
+    SIFT_feats=[SIFT_feats;Gist];             %#ok<AGROW>   % 将Gist矩阵与SIFT_feats连接
+    for j=1:number_of_SIFT_feats              % 只保留number_of_SIFT_feats数目的特征
+      all_SIFT_feats(:,(i-1)*number_of_SIFT_feats+j)=SIFT_feats(:,j);  % 将一定数目的特征描述放在all_SIFT_feats矩阵中
+    end
+end
+[center,~]=vl_kmeans(all_SIFT_feats,vocab_size);  % centers:128*vocab_size
+% 输出矩阵size vocab_size*128，每一行表示K-means的一个聚类中心，也就是128维空间的一个点
+vocab=center'; 
+end
+
+</code></pre>
+
+<code><pre>
+
+function image_feats = get_bags_of_sifts(image_paths)   %% 增加Gist特征
+%     需要调整的参数：Step
+
+load('vocab.mat')                                % proj3.m 中有保存vocab的代码
+vocab_size = size(vocab, 1);                     % vocab每一行表示K-means得到的一个中心，不是vocab_size=size(vocab,2)
+
+number_of_images=size(image_paths,1);            % 图像的数目
+image_feats=zeros(number_of_images,vocab_size);  % 输出的SIFT特征描述包为number_of_image*vocal_size维度 
+
+% Gist 参数
+clear param
+param.imageSize = [256 256]; % it works also with non-square images
+param.orientationsPerScale = [8 8 8 8];
+param.numberBlocks = 4;
+param.fc_prefilt = 4;
+
+
+ display('runing for geting bags of sifts');
+ for i=1:number_of_images
+    image=im2single(imread(image_paths{i}));         % 由于vl_dsift限制，需要转换为single类型
+    [~, SIFT_feats] = vl_dsift(image, 'Step', 5);   % SIFT_features is a 128 x N matrix of SIFT features
+    number_of_SIFT_feats=size(SIFT_feats,2);  % vl_dsift的输出SIFT_feats为128*SIFT数目
+
+    [Gist, param] = LMgist(image, '', param);   % 获取Gist特征
+%     for j=1:number_of_SIFT_feats
+%       for k=1:512
+%         SIFT_feats(128+k,j)=Gist(1,k);
+%       end
+%     end
+    Gist=repmat(Gist',1,number_of_SIFT_feats);      % 生成列相同的Gist矩阵
+    SIFT_feats=[SIFT_feats;Gist];     %#ok<AGROW>   % 将Gist矩阵与SIFT_feats连接
+   
+    SIFT_feats=single(SIFT_feats);    % 由于vl_alldist2()限制，需要转换为single类型
+    vocab=single(vocab);              % 由于vl_alldist2()限制，需要转换为single类型
+    dist=vl_alldist2(vocab',SIFT_feats);
+ 
+    [~,index]=sort(dist,1); % 欧式距离最近的视觉词汇，可以被认为在图像中出现
+    
+    for j=1:number_of_SIFT_feats
+        image_feats(i,index(1,j))=image_feats(i,index(1,j))+1;   % 统计直方图，也就是所有视觉词汇在图像中出现的次数
+    end
+    image_feats(i,index(1,j))=image_feats(i,index(1,j))./sum(image_feats(i,:));  % 直方图归一化
+  end
+end
+</code></pre>
+
+
+<p>
+  下面是对涉及到的几个主要参数调整得到的实验结果。
+</p>
+<p>
+  下面这个表是实验结果的汇总。其中第一行的参数分别表示为：<BR>
+   <strong>1. 词汇表的词汇量；2. 建立词汇表时，从每幅图像中抽取的特征数目；3. 建立词汇表时，vl_dsift()的参数'step'；4. 获取图像词汇包时，vl_dsift()的参数'step'；5. SVM中vl_svmtrain()的参数lambda；6. 建立词汇表时，vl_dsift()的参数'Size'；7. 获取图像词汇包时，vl_dsift()的参数'Size'.</strong>
+</p>
+
+
+<center><img src="stat-Gist.jpg" > </center>
+
+
+<p>
+  下面是实验结果的混淆矩阵，编号对应于上面表的实验编号。
+</p>
+
+
+
+
+<center><strong style=background-color:rgb(10,200,250)>点击图片，查看详细的实验结果</strong></center>
+
+<center>
+<table>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage Gist-exp 01/index.html"><img src="results_webpage Gist-exp 01/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-01. </strong> Accuracy (mean of diagonal of confusion matrix) is  0.587  
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage Gist-exp 02/index.html"><img src="results_webpage Gist-exp 02/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-02. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.601 
+</center>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage Gist-exp 03/index.html"><img src="results_webpage Gist-exp 03/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-03. </strong> Accuracy (mean of diagonal of confusion matrix) is  0.655   
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage Gist-exp 04/index.html"><img src="results_webpage Gist-exp 04/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-04. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.636 
+</center>
+</td>
+
+</tr>
+
+
+<tr>
+
+<td>
+
+<a href="./results_webpage Gist-exp 05/index.html"><img src="results_webpage Gist-exp 05/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-05. </strong> <front color="red">Accuracy (mean of diagonal of confusion matrix) is  0.674  </front>  
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage Gist-exp 06/index.html"><img src="results_webpage Gist-exp 06/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-06. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.674  
+</center>
+</td>
+
+</tr>
+
+<tr>
+
+<td>
+
+<a href="./results_webpage Gist-exp 07/index.html"><img src="results_webpage Gist-exp 07/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-07. </strong> Accuracy (mean of diagonal of confusion matrix) is  0.665     
+</center>
+</td>
+
+<td>
+
+<a href="./results_webpage Gist-exp 08/index.html"><img src="results_webpage Gist-exp 08/confusion_matrix.png" width="80%"></a>
+
+<center>
+<strong>Exp. Gist-08. </strong> Accuracy (mean of diagonal of confusion matrix) is 0.657   
+</center>
+</td>
+
+</tr>
+
+
+
+
+
+
+</table>
+</center>
+
+
+<h2 style="background-color:rgb(10,200,150)"><strong>四、总结</strong></h2>
+<p>
+(1) 增加Gist特征描述后，基于视觉词汇和线性SVM的场景识别算法，经过很有限地调整参数，性能有百分之几的变化。实验的识别准确率接近70%，可能已经接近极限。需要用空间金字塔等算法来进一步提高准确率。
+</p>
+<p>
+(2) 对于上面的实验Exp. Gist-05，通过查看代码生成的详细分类结果可以看到，'Suburb'和'Forest'的识别准确率高达94%，'InsideCity'的准确率只有41%，可能对于场景识别问题，场景归类本身逻辑上带有很大的模糊性，这给提高算法的识别准确率带来困难。
+</p>
+<p>
+(3) 原先以为将Gist特征描述数据乘以0.5后，可以降低512维的Gist过大影响128维的SIFT，但其实这样做是没有意义的。因为这样只不过使得特征空间的点坐标发生了变化，点与点的距离发生了变化，但是点与点的远近顺序没有变化，也就是说最近的两个点依然是最近的。这样为图像建立的直方图没有发生任何变化。所有Exp.Gist-05与Exp.Gist-06的结果相一致。
+</p>
+
+
+</body>
+</html>
+
+
