@@ -1,5 +1,5 @@
 # SceneRecognition
-   Scene recognition by machine learning. 
+   Scene recognition for images by machine learning algorithms. 
 
 1. code/ 文件夹下为实现项目基本要求的代码。 code-Gist/ 文件夹下是增加 Gist 特征的代码；
 
