@@ -1,7 +1,7 @@
 # SceneRecognition
    Scene recognition for images by machine learning algorithms. 
 
-1. code/: 实现项目基本要求。 code-Gist/: 是增加 Gist 特征；
+1. code/: 实现项目基本要求。 code-Gist/: 增加了 Gist 特征；
 
 2. 实现了三个场景识别算法
    (1)小图像+K-NN  (2)视觉词汇包+K-NN (3)视觉词汇包+Linear SVM
